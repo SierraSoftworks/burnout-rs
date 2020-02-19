@@ -1,0 +1,686 @@
+openapi: 3.0.1
+info:
+  title: Burnout
+  description: Burnout is a tool used to anonymously track your team's happiness and risk of burnout.
+  license:
+    name: MIT
+    url: https://sierrasoftworks.com/licenses/MIT
+  version: 1.0.
+  
+servers:
+  - url: https://burnout.sierrasoftworks.com
+  - url: http://localhost:8000
+  
+tags:
+  - name: health
+    description: APIs used to determine the health of a Burnout instance.
+  - name: teams
+    description: APIs used to manage and retrieve team information.
+  - name: reports
+    description: APIs used to manage burnout reports by individuals.
+
+paths:
+  /api/v1/health:
+    get:
+      tags:
+        - health
+
+      summary: Get Health (v2)
+      description: Gets the current health status of the Burnout instance.
+      operationId: health_v2
+      responses:
+        200:
+          description: The service is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthV1"
+              example:
+                ok: true
+                started_at: "2019-03-14T23:17:27.210333300Z"
+        500:
+          description: The service is unhealthy.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthV1"
+              example:
+                ok: false
+                started_at: "2019-03-14T23:17:27.210333300Z"
+
+  /api/v1/teams:
+    get:
+      tags:
+        - teams
+      security:
+        - AzureAD: [Teams.Read]
+
+      summary: Get Teams (v1)
+      description: Gets the list of teams that you have access to.
+      operationId: teams_v1
+      responses:
+        200:
+          description: List of teams
+          content:
+            application/json:
+              schema:
+                type: array
+                description: The list of ideas registered with the server.
+                items:
+                  $ref: "#/components/schemas/TeamV1"
+    post:
+      tags:
+        - teams
+      security:
+        - AzureAD: [Teams.Write]
+
+      summary: New Team (v1)
+      description: Creates a new team on the server.
+      operationId: new_team_v1
+      requestBody:
+        description: The team to add to the server.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamV1"
+            example:
+              name: "Test Idea"
+              description: "This is a test idea"
+      responses:
+        201:
+          description: Team was created.
+          headers:
+            Location:
+              description: The relative path at which you can find the newly created object.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamV1"
+        500:
+          description: The server could not create the team, please try again.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 500
+                error: Internal Server Error
+                description: The server encountered an error while processing your request, please try again later.
+
+  /api/v1/team/{id}:
+    get:
+      tags:
+        - teams
+      security:
+        - AzureAD: [Teams.Read]
+
+      summary: Get Team (v1)
+      description: Gets a specific team from the server based on its ID.
+      operationId: team_v1
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the team you wish to retrieve.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+      responses:
+        200:
+          description: The details of the team.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamV1"
+        404:
+          description: The server could not find any teams matching that ID, please check it and try again.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 404
+                error: Not Found
+                description: The resource you were looking for could not be found, please check your request and try again.
+    put:
+      tags:
+        - teams
+      security:
+        - AzureAD: [Teams.Write]
+
+      summary: Store Team (v1)
+      description: Stores a team idempotently with the given identifier, replacing an existing instance if one is present.
+      operationId: store_team_v1
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the team you wish to store.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+      requestBody:
+        description: The team to store on the server.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamV1"
+            example:
+              name: "Test Idea"
+              description: "This is a test idea"
+      responses:
+        200:
+          description: Stored team
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamV1"
+        404:
+          description: The server could not find any teams matching that ID, please create one and try again.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 404
+                error: Not Found
+                description: The resource you were looking for could not be found, please check your request and try again.
+        500:
+          description: The server could not store the team, please try again.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 500
+                error: Internal Server Error
+                description: The server encountered an error while processing your request, please try again later.
+                
+  /api/v1/team/{teamId}/users:
+    get:
+      tags:
+        - teams
+      security:
+        - AzureAD: [RoleAssignments.Write]
+
+      summary: Get Team Role Assignments (v1)
+      description: Gets the list of users which can access this team and their role assignments.
+      operationId: role_assignments_v1
+      parameters:
+        - name: teamId
+          in: path
+          description: The unique ID of the team to retrieve users for.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+            example: 957d25c0baec7557f45a67ed2e427e9
+      responses:
+        200:
+          description: List of team assignments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeamAssignmentV1"
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeamAssignmentV1"
+                xml:
+                  name: TeamAssignments
+                  wrapped: true
+        404:
+          description: Team not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 404
+                error: Not Found
+                description: The resource you were looking for could not be found, please check your request and try again.
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/team/{teamId}/user/{userId}:
+    get:
+      tags:
+        - teams
+      security:
+        - AzureAD: [RoleAssignments.Write]
+
+      summary: Get User Role Assignment (v1)
+      description: Gets the details of a user's role assignment within a team.
+      operationId: role_assignment_v1
+      parameters:
+        - name: teamId
+          in: path
+          description: The unique ID of the team to retrieve the user from.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+            example: 957d25c0baec7557f45a67ed2e427e9
+        - name: userId
+          in: path
+          description: The unique ID of the user to retrieve.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+            example: c0baec767ed2557f957d2545ae427e9
+      responses:
+        200:
+          description: User role assignment details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamAssignmentV1"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/TeamAssignmentV1"
+        404:
+          description: Team or role assignment not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 404
+                error: Not Found
+                description: The resource you were looking for could not be found, please check your request and try again.
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - teams
+      security:
+        - AzureAD: [RoleAssignments.Write]
+
+      summary: Update User Role Assignment (v1)
+      description: Update the role assignment associated with a user on a given team.
+      operationId: update_role_assignment_v1
+      parameters:
+        - name: teamId
+          in: path
+          description: The unique ID of the team to retrieve the user from.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+            example: 957d25c0baec7557f45a67ed2e427e9
+        - name: userId
+          in: path
+          description: The unique ID of the user to retrieve.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+            example: c0baec767ed2557f957d2545ae427e9
+      requestBody:
+        description: The role assignment to apply for this user when accessing the team.
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/TeamAssignmentV1'
+          text/xml:
+            schema: 
+              $ref: '#/components/schemas/TeamAssignmentV1'
+      responses:
+        200:
+          description: User role assignment details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamAssignmentV1"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/TeamAssignmentV1"
+        404:
+          description: Team not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 404
+                error: Not Found
+                description: The resource you were looking for could not be found, please check your request and try again.
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - teams
+      security:
+        - AzureAD: [RoleAssignments.Write]
+
+      summary: Remove User Role Assignment (v1)
+      description: Removes a user's role assignment from a team.
+      operationId: remove_role_assignment_v1
+      parameters:
+        - name: teamId
+          in: path
+          description: The unique ID of the team to retrieve the user from.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+            example: 957d25c0baec7557f45a67ed2e427e9
+        - name: userId
+          in: path
+          description: The unique ID of the user to retrieve.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+            example: c0baec767ed2557f957d2545ae427e9
+      responses:
+        204:
+          description: Role assignment removed.
+        404:
+          description: Team or role assignment not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 404
+                error: Not Found
+                description: The resource you were looking for could not be found, please check your request and try again.
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  
+  /api/v1/team/{teamId}/reports:
+    get:
+      tags:
+        - teams
+      security:
+        - AzureAD: [Teams.Read]
+      
+      summary: Get Team Reports (v1)
+      description: Fetches the reports submitted for a team.
+      operationId: get_team_reports_v1
+      parameters:
+        - name: teamId
+          in: path
+          description: The unique ID of the team to retrieve the reports for.
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-f0-9]{32}$
+            example: 957d25c0baec7557f45a67ed2e427e9
+      responses:
+        200:
+          description: List of the team's report submissions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportV1'
+                
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  
+  /api/v1/reports:
+    get:
+      tags:
+        - reports
+      security:
+        - AzureAD: [Reports.Read]
+      
+      summary: Get Your Reports (v1)
+      description: Fetches the full history of your report submissions.
+      operationId: get_reports_v1
+      responses:
+        200:
+          description: List of your previous report submissions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportV1'
+                
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags:
+        - reports
+      security:
+        - AzureAD: [Reports.Write]
+      
+      summary: Submit Report (v1)
+      description: Submits a new report which will appear in your report history as well as that of the teams you are a member of.
+      operationId: new_report_v1
+      requestBody:
+        description: The details of the report to submit.
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/ReportV1'
+          text/xml:
+            schema: 
+              $ref: '#/components/schemas/ReportV1'
+      responses:
+        200:
+          description: The details of the report which has been created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportV1'
+                
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+      
+
+components:
+  securitySchemes:
+    AzureAD:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://login.microsoftonline.com/a26571f1-22b3-4756-ac7b-39ca684fab48/oauth2/v2.0/authorize
+          scopes:
+            "Reports.Read": Allows the reading of your report data.
+            "Reports.Write": Allows the submission of reports.
+            "Teams.Read": Allows the reading of team information.
+            "Teams.Write": Allows the creation, modification and removal of teams.
+            "RoleAssignments.Write": Allows the creation, modification and removal of role assignments for teams.
+            
+  responses:
+    Unauthorized:
+      description: You have not provided a valid authentication token.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+            example: Bearer
+          required: true
+    Forbidden:
+      description: Your access token does not grant you the required role or scopes needed to access this resource.
+    InternalServerError:
+      description: The server failed to process your request successfully.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 500
+            error: Internal Server Error
+            description: The server encountered an error while processing your request, please try again later.
+            
+  schemas:
+    HealthV1:
+      required:
+        - ok
+        - started_at
+      type: object
+      properties:
+        ok:
+          type: boolean
+          description: Whether the service is healthy or not.
+          readOnly: true
+          xml:
+            name: OK
+        started_at:
+          type: string
+          description: The ISO 8601 datetime at which the service was started.
+          format: datetime
+          readOnly: true
+          xml:
+            name: StartedAt
+      xml:
+        name: Health
+
+    TeamV1:
+      required:
+        - description
+        - name
+      type: object
+      properties:
+        id:
+          pattern: ^[a-z0-9]{32}$
+          type: string
+          description: A unique ID used to identify this idea internally.
+          readOnly: true
+        name:
+          type: string
+          description: The short name used to identify this idea.
+        
+      xml:
+        name: Team
+        
+      example:
+        id: "225c5957d7f450baec75a67ede427e9"
+        name: "Ops Team"
+        
+    TeamAssignmentV1:
+      required:
+        - userID
+        - teamID
+        - role
+      type: object
+      properties:
+        teamID:
+          pattern: ^[a-z0-9]{32}$
+          type: string
+          description: A unique ID used to identify this team internally.
+          readOnly: true
+          xml:
+            name: team-id
+            attribute: true
+        userID:
+          pattern: ^[a-z0-9]{32}$
+          type: string
+          description: A unique ID used to identify this user internally.
+          readOnly: true
+          xml:
+            name: user-id
+            attribute: true
+        role:
+          type: string
+          description: The role that the user has been granted on this team.
+          example: Owner
+          enum:
+            - Manager
+            - Member
+            - Viewer
+          xml:
+            name: role
+            attribute: true
+      xml:
+        name: TeamAssignment
+        
+      example:
+        teamID: "225c5957d7f450baec75a67ede427e9"
+        userID: "de427e9225c59ec75a67e57d7f450ba"
+        role: "Manager"
+        
+        
+    ReportV1:
+      required:
+        - metric
+        - value
+      type: object
+      properties:
+        time:
+          type: string
+          format: datetime
+          description: The time at which the report was received.
+          readOnly: true
+          xml:
+            name: time
+        metric:
+          type: string
+          description: The name of a measurement metric which is being tracked.
+          xml:
+            name: metric
+        value:
+          type: number
+          description: A numerical value used to measure this metric.
+          xml:
+            name: value
+      xml:
+        name: Report
+      example:
+        time: "2020-02-14T12:02:49Z"
+        metric: burnout_index
+        value: 3.1
+        
+
+    Error:
+      type: object
+      description: An error describing a problem that the server has encountered or identified.
+      required:
+        - code
+        - error
+        - message
+      properties:
+        code:
+          type: number
+          format: integer
+          minimum: 100
+          maximum: 599
+          description: The HTTP status code corresponding to this error.
+        error:
+          type: string
+          description: The human readable description of the HTTP status code.
+        description:
+          type: string
+          description: A human readable description of the exact error that occurred.
