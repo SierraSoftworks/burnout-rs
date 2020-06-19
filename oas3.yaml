@@ -65,7 +65,7 @@ paths:
             application/json:
               schema:
                 type: array
-                description: The list of ideas registered with the server.
+                description: The list of records registered with the server.
                 items:
                   $ref: "#/components/schemas/TeamV1"
     post:
@@ -84,8 +84,8 @@ paths:
             schema:
               $ref: "#/components/schemas/TeamV1"
             example:
-              name: "Test Idea"
-              description: "This is a test idea"
+              name: "Test Record"
+              description: "This is a test record"
       responses:
         201:
           description: Team was created.
@@ -168,8 +168,8 @@ paths:
             schema:
               $ref: "#/components/schemas/TeamV1"
             example:
-              name: "Test Idea"
-              description: "This is a test idea"
+              name: "Test Record"
+              description: "This is a test record"
       responses:
         200:
           description: Stored team
@@ -203,11 +203,11 @@ paths:
       tags:
         - teams
       security:
-        - AzureAD: [RoleAssignments.Write]
+        - AzureAD: [TeamAssignments.Write]
 
       summary: Get Team Role Assignments (v1)
       description: Gets the list of users which can access this team and their role assignments.
-      operationId: role_assignments_v1
+      operationId: team_assignments_v1
       parameters:
         - name: teamId
           in: path
@@ -256,11 +256,11 @@ paths:
       tags:
         - teams
       security:
-        - AzureAD: [RoleAssignments.Write]
+        - AzureAD: [TeamAssignments.Write]
 
       summary: Get User Role Assignment (v1)
       description: Gets the details of a user's role assignment within a team.
-      operationId: role_assignment_v1
+      operationId: team_assignment_v1
       parameters:
         - name: teamId
           in: path
@@ -308,11 +308,11 @@ paths:
       tags:
         - teams
       security:
-        - AzureAD: [RoleAssignments.Write]
+        - AzureAD: [TeamAssignments.Write]
 
       summary: Update User Role Assignment (v1)
       description: Update the role assignment associated with a user on a given team.
-      operationId: update_role_assignment_v1
+      operationId: update_team_assignment_v1
       parameters:
         - name: teamId
           in: path
@@ -370,11 +370,11 @@ paths:
       tags:
         - teams
       security:
-        - AzureAD: [RoleAssignments.Write]
+        - AzureAD: [TeamAssignments.Write]
 
       summary: Remove User Role Assignment (v1)
       description: Removes a user's role assignment from a team.
-      operationId: remove_role_assignment_v1
+      operationId: remove_team_assignment_v1
       parameters:
         - name: teamId
           in: path
@@ -521,7 +521,7 @@ components:
             "Reports.Write": Allows the submission of reports.
             "Teams.Read": Allows the reading of team information.
             "Teams.Write": Allows the creation, modification and removal of teams.
-            "RoleAssignments.Write": Allows the creation, modification and removal of role assignments for teams.
+            "TeamAssignments.Write": Allows the creation, modification and removal of role assignments for teams.
             
   responses:
     Unauthorized:
@@ -570,18 +570,17 @@ components:
 
     TeamV1:
       required:
-        - description
         - name
       type: object
       properties:
         id:
           pattern: ^[a-z0-9]{32}$
           type: string
-          description: A unique ID used to identify this idea internally.
+          description: A unique ID used to identify this team internally.
           readOnly: true
         name:
           type: string
-          description: The short name used to identify this idea.
+          description: The short name used to identify this team.
         
       xml:
         name: Team
@@ -639,7 +638,7 @@ components:
         - value
       type: object
       properties:
-        time:
+        timestamp:
           type: string
           format: datetime
           description: The time at which the report was received.

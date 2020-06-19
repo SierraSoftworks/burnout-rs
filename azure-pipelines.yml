@@ -1,0 +1,42 @@
+trigger:
+  - main
+  
+variables:
+  tag: '$(Build.BuildId)'
+  image: sierrasoftworks/burnout
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: SierraSoftworks/devops-pipelines
+      endpoint: SierraSoftworks
+  
+extends:
+  template: kubernetes/app.yml@templates
+  parameters:
+    build:
+      - job: build_docker
+        displayName: Build Docker Image
+        steps:
+        - task: Docker@2
+          displayName: Build Docker Image
+          inputs:
+            command: buildAndPush
+            dockerfile: 'Dockerfile'
+            containerRegistry: Docker Hub
+            repository: $(image)
+            tags: |
+              latest
+              $(tag)
+    manifests: ./.deploy
+    containers: |
+      $(image):$(tag)
+    staging:
+      namespace: burnout-staging
+      environment: staging-burnout-sierrasoftworks-com.burnout-staging
+      healthcheck: https://staging.burnout.sierrasoftworks.com/api/v1/health
+    production:
+      namespace: burnout-prod
+      environment: burnout-sierrasoftworks-com.burnout-prod
+      healthcheck: https://burnout.sierrasoftworks.com/api/v1/health
