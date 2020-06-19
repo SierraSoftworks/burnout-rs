@@ -24,14 +24,22 @@ async fn new_report_v1(
 
     let mut reports: Vec<ReportV1> = Vec::new();
     for team in teams {
-        let report = state.store.send(StoreReport {
-            id: id,
-            team: team.team_id,
-            metric: report.metric.clone(),
-            timestamp: Some(timestamp),
-            value: report.value,
-        }).await?.map(|report| report.clone().into())?;
-        reports.push(report);
+        match state.store.send(GetTeamAssignment {
+            principal_id: uid,
+            team_id: team.team_id
+        }).await? {
+            Ok(role) if role.role == Role::Manager || role.role == Role::Member => {
+                let report = state.store.send(StoreReport {
+                    id: id,
+                    team: team.team_id,
+                    metric: report.metric.clone(),
+                    timestamp: Some(timestamp),
+                    value: report.value,
+                }).await?.map(|report| report.clone().into())?;
+                reports.push(report);
+            },
+            _ => {}
+        }        
     }
 
     Ok(web::Json(reports))
