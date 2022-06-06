@@ -443,34 +443,6 @@ dependencies = [
 
 [[package]]
 name = "azure_sdk_storage_core"
-version = "0.43.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7649196fa43d671e80976ae4280d746005c8fd7d95a1eb9d29b6b455f0739f4"
-dependencies = [
- "azure_sdk_core",
- "base64 0.12.2",
- "bytes 0.5.4",
- "chrono",
- "futures 0.3.4",
- "http 0.2.0",
- "hyper 0.13.2",
- "hyper-rustls",
- "log",
- "mime",
- "quick-error",
- "ring",
- "serde",
- "serde-xml-rs",
- "serde_derive",
- "serde_json",
- "smallvec 1.7.0",
- "time 0.2.16",
- "url 2.1.1",
- "uuid 0.8.1",
-]
-
-[[package]]
-name = "azure_sdk_storage_core"
 version = "0.44.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4bf8ecfb6573e415295ffc3c25951b4b26b0b2d14d22b967ffdc4cf31a4778d2"
@@ -499,12 +471,12 @@ dependencies = [
 
 [[package]]
 name = "azure_sdk_storage_table"
-version = "0.40.5"
+version = "0.41.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a3d52939e48688541cb17e7b23b1e21838bcf14633634f2113738ef26def8d3"
+checksum = "9e6ae8620fa31961472e927d3ca2afdcdbe9040d520621b04d33bdc9c7831105"
 dependencies = [
  "azure_sdk_core",
- "azure_sdk_storage_core 0.43.3",
+ "azure_sdk_storage_core",
  "chrono",
  "futures 0.3.4",
  "http 0.2.0",
@@ -647,7 +619,7 @@ dependencies = [
  "actix-web-prom",
  "async-trait",
  "azure_sdk_core",
- "azure_sdk_storage_core 0.44.1",
+ "azure_sdk_storage_core",
  "azure_sdk_storage_table",
  "biscuit",
  "chrono",
