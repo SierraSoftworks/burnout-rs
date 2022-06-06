@@ -418,9 +418,9 @@ dependencies = [
 
 [[package]]
 name = "azure_sdk_core"
-version = "0.43.4"
+version = "0.43.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ccfd83685edb91d2ad9fc102a7bffacecc9af4626b36f202a5ce16a3f4a86240"
+checksum = "57d8dd27eee0644b886305eca21c48425403a8bb87ec57f52f516093504fa3a5"
 dependencies = [
  "RustyXML",
  "base64 0.12.2",
@@ -471,9 +471,9 @@ dependencies = [
 
 [[package]]
 name = "azure_sdk_storage_core"
-version = "0.44.1"
+version = "0.44.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bf8ecfb6573e415295ffc3c25951b4b26b0b2d14d22b967ffdc4cf31a4778d2"
+checksum = "93730b33cf379bacf5e56b5765f98a1f1ee27b2d530a2f8f027f4e806c53b4fd"
 dependencies = [
  "azure_sdk_core",
  "base64 0.12.2",
@@ -647,11 +647,11 @@ dependencies = [
  "actix-web-prom",
  "async-trait",
  "azure_sdk_core",
- "azure_sdk_storage_core 0.44.1",
+ "azure_sdk_storage_core 0.44.4",
  "azure_sdk_storage_table",
  "biscuit",
  "chrono",
- "env_logger",
+ "env_logger 0.9.0",
  "futures 0.3.4",
  "http 0.2.0",
  "lazy_static",
@@ -954,7 +954,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44533bbbb3bb3c1fa17d9f2e4e38bbbaf8396ba82193c4cb1b6445d711445d36"
 dependencies = [
  "atty",
- "humantime",
+ "humantime 1.3.0",
+ "log",
+ "regex",
+ "termcolor",
+]
+
+[[package]]
+name = "env_logger"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b2cf0344971ee6c64c31be0d530793fba457d322dfec2810c453d0ef228f9c3"
+dependencies = [
+ "atty",
+ "humantime 2.1.0",
  "log",
  "regex",
  "termcolor",
@@ -1313,6 +1326,12 @@ checksum = "df004cfca50ef23c36850aaaa59ad52cc70d0e90243c3c7737a4dd32dc7a3c4f"
 dependencies = [
  "quick-error",
 ]
+
+[[package]]
+name = "humantime"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
@@ -2577,7 +2596,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b01b723fc1b0a0f9394ca1a8451daec6e20206d47f96c3dceea7fd11ec9eec0"
 dependencies = [
  "backtrace",
- "env_logger",
+ "env_logger 0.7.1",
  "failure",
  "hostname 0.3.1",
  "httpdate",
