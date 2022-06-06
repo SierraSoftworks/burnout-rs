@@ -660,7 +660,7 @@ dependencies = [
  "oidc",
  "percent-encoding 2.1.0",
  "prometheus",
- "rand 0.6.5",
+ "rand 0.7.3",
  "reqwest 0.9.24",
  "sentry",
  "serde",
