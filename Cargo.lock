@@ -418,9 +418,9 @@ dependencies = [
 
 [[package]]
 name = "azure_sdk_core"
-version = "0.43.4"
+version = "0.43.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ccfd83685edb91d2ad9fc102a7bffacecc9af4626b36f202a5ce16a3f4a86240"
+checksum = "57d8dd27eee0644b886305eca21c48425403a8bb87ec57f52f516093504fa3a5"
 dependencies = [
  "RustyXML",
  "base64 0.12.2",
@@ -471,9 +471,9 @@ dependencies = [
 
 [[package]]
 name = "azure_sdk_storage_core"
-version = "0.44.1"
+version = "0.44.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bf8ecfb6573e415295ffc3c25951b4b26b0b2d14d22b967ffdc4cf31a4778d2"
+checksum = "93730b33cf379bacf5e56b5765f98a1f1ee27b2d530a2f8f027f4e806c53b4fd"
 dependencies = [
  "azure_sdk_core",
  "base64 0.12.2",
@@ -647,7 +647,7 @@ dependencies = [
  "actix-web-prom",
  "async-trait",
  "azure_sdk_core",
- "azure_sdk_storage_core 0.44.1",
+ "azure_sdk_storage_core 0.44.4",
  "azure_sdk_storage_table",
  "biscuit",
  "chrono",
@@ -660,7 +660,7 @@ dependencies = [
  "oidc",
  "percent-encoding 2.1.0",
  "prometheus",
- "rand 0.6.5",
+ "rand 0.7.3",
  "reqwest 0.9.24",
  "sentry",
  "serde",

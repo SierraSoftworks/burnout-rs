@@ -21,7 +21,7 @@ actix-web-httpauth = "0.4"
 actix-web-prom = "0.2"
 async-trait = "0.1.31"
 azure_sdk_core = "0.43.3"
-azure_sdk_storage_core = "0.44.1"
+azure_sdk_storage_core = "0.44.4"
 azure_sdk_storage_table = "0.40.5"
 biscuit = "0.3"
 chrono = { version = "0.4", features = ["serde"] }
@@ -34,7 +34,7 @@ md5 = "0.7"
 oidc = "0.3"
 percent-encoding = "2.1"
 prometheus = "0.8"
-rand = "0.6"
+rand = "0.7"
 reqwest = "0.9"
 sentry = { version = "0.18", features = ["with_env_logger"] }
 serde = { version = "1.0", features = ["derive"] }
