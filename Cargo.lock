@@ -326,7 +326,7 @@ dependencies = [
  "actix-service",
  "actix-web",
  "futures 0.3.21",
- "prometheus",
+ "prometheus 0.8.0",
 ]
 
 [[package]]
@@ -661,7 +661,7 @@ dependencies = [
  "md5",
  "oidc",
  "percent-encoding 2.1.0",
- "prometheus",
+ "prometheus 0.13.0",
  "rand 0.8.5",
  "reqwest 0.9.24",
  "sentry",
@@ -2127,8 +2127,22 @@ dependencies = [
  "cfg-if 0.1.10",
  "fnv",
  "lazy_static",
- "protobuf",
  "spin",
+ "thiserror",
+]
+
+[[package]]
+name = "prometheus"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7f64969ffd5dd8f39bd57a68ac53c163a095ed9d0fb707146da1b27025a3504"
+dependencies = [
+ "cfg-if 1.0.0",
+ "fnv",
+ "lazy_static",
+ "memchr",
+ "parking_lot 0.11.1",
+ "protobuf",
  "thiserror",
 ]
 
